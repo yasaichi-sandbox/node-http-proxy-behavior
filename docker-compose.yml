@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  web:
+    image: node:14-slim
+    command: ["yarn", "dev"]
+    depends_on:
+      - backend
+    ports:
+      - 3000:3000
+    volumes:
+      - type: bind
+        source: ./web
+        target: /usr/src/app
+      - type: volume
+        source: npm_package
+        target: /usr/src/app/node_modules
+        volume:
+          nocopy: true
+    working_dir: /usr/src/app
+  backend:
+    image: ruby:2.7.1
+    command: ["bin/rails", "s", "-b", "0.0.0.0", "-p", "8080"]
+    stdin_open: true  # for debugging
+    tty: true
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /usr/src/app
+      - type: volume
+        source: gem
+        target: /usr/local/bundle
+        volume:
+          nocopy: true
+    working_dir: /usr/src/app
+volumes:
+  gem:
+    driver: local
+  npm_package:
+    driver: local
